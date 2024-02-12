@@ -51,6 +51,17 @@ function ClaimPage(): JSX.Element {
 
 	const { id, lnurl, channelExpiryWeeks } = order;
 
+	const ClaimWithWebln = async (): Promise<void> => {
+		if (typeof window.webln !== 'undefined' && window.webln.lnurl) {
+			try {
+				await window.webln.enable();
+				await window.webln.lnurl(lnurl);
+			} catch (e) {
+				alert(`An error occurred during the payment: ${e}`);
+			}
+		}
+	};
+
 	const claimChannel = async (): Promise<void> => {
 		setIsSubmitting(true);
 		try {
@@ -85,6 +96,10 @@ function ClaimPage(): JSX.Element {
 					</div>
 					<p className={'claim-channel-address'}>{clipCenter(lnurl.toLocaleLowerCase(), 42)}</p>
 					<div>
+					{typeof window.webln !== 'undefined' && window.webln.lnurl && (
+							<ActionButton onClick={ClaimWithWebln}>Claim Now</ActionButton>
+						)}
+						<div className={'claim-channel-button-spacer'} />
 						<ActionButton copyText={lnurl.toLocaleLowerCase()}>Copy claim url</ActionButton>
 						<div className={'claim-channel-button-spacer'} />
 						<ActionButton onClick={() => setShowManual(true)} Icon={ClaimIcon}>
